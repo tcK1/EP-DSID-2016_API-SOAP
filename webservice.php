@@ -61,16 +61,21 @@ function CadastraUsuario($nome, $email, $senha){
 function ValidaSecao($email, $senha){
     
     $stmt = $GLOBALS['db']->prepare(
-    'SELECT id FROM usuarios
+    'SELECT * FROM usuarios
     WHERE email = :email AND senha = :senha');
     $stmt->execute(array(
         'email' => $email,
         'senha' => $senha
     ));
     $resultado = $stmt->fetch(PDO::FETCH_ASSOC);
-    $resultado[validade] = TRUE;
-    
-    $xml = xml('OK', 'Consulta feita com sucesso', $resultado);
+
+    if(!empty($resultado)){
+        $resultado[validade] = 1;
+        $xml = xml('OK', 'Consulta feita com sucesso', $resultado);
+    } else {
+        $resultado[validade] = -1;
+        $xml = xml('BAD', 'Consulta não retornou nenhum valor', $resultado);
+    }
     
     return $xml;
     
