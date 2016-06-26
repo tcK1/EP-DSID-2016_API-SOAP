@@ -7,22 +7,33 @@ function xml($status, $descricao, $conteudo){
     $xml->addAttribute('descricao', $descricao);
     
     if(!is_array($conteudo)) $xml->addChild('mensagem', $conteudo);
-    else array_to_xml($conteudo, $xml);
+    else arrayPraXml($conteudo, $xml);
     
     return $xml->asXML();
     
 }
 
-function array_to_xml( $data, &$xml_data ) {
-    foreach( $data as $key => $value ) {
-        if( is_array($value) ) {
-            if( is_numeric($key) ){
-                $key = 'item'.$key;
+function arrayPraXml($student_info, &$xml_student_info) {
+    foreach($student_info as $key => $value) {
+        if(is_array($value)) {
+            if(!is_numeric($key)){
+                $subnode = $xml_student_info->addChild("$key");
+                arrayPraXml($value, $subnode);
             }
-            $subnode = $xml_data->addChild($key);
-            array_to_xml($value, $subnode);
-        } else {
-            $xml_data->addChild("$key",htmlspecialchars("$value"));
+            else{
+                arrayPraXml($value, $xml_student_info);
+            }
         }
-     }
+        else {
+            $xml_student_info->addChild("$key","$value");
+        }
+    }
+}
+
+function checaEmail($email){  
+   
+   $Syntaxe='#^[\w.-]+@[\w.-]+\.[a-zA-Z]{2,6}$#';  
+   if(preg_match($Sintaxe, $email)) return true;  
+   else return false;  
+   
 }
