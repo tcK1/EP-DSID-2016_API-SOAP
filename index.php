@@ -3,12 +3,12 @@ echo '<pre>';
 
 ini_set("soap.wsdl_cache_enabled", 0);
 
-$client = new SoapClient('http://distribuidossoap-ztck.c9users.io/webservice.php?wsdl');
-$options = array('location' => 'http://distribuidossoap-ztck.c9users.io/webservice.php');
+$client = new SoapClient('http://distribuidossoap-ztck.c9users.io/webservice?wsdl');
+$options = array('location' => 'http://distribuidossoap-ztck.c9users.io/webservice');
 
 echo '-------------------------------Funcoes-------------------------------';
 
-$functions = $client->__getFunctions ();
+$functions = $client->__getFunctions();
 var_dump ($functions);
 
 echo '-------------------------------CadastraUsuario-------------------------------</br>';

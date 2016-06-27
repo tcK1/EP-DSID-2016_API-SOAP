@@ -14,6 +14,7 @@ function xml($status, $descricao, $conteudo){
 }
 
 function arrayPraXml($student_info, &$xml_student_info) {
+    
     foreach($student_info as $key => $value) {
         if(is_array($value)) {
             if(!is_numeric($key)){
@@ -28,12 +29,12 @@ function arrayPraXml($student_info, &$xml_student_info) {
             $xml_student_info->addChild("$key","$value");
         }
     }
+    
 }
 
-function checaEmail($email){  
+function checaEmailInvalido($email){  
    
-   $Syntaxe='#^[\w.-]+@[\w.-]+\.[a-zA-Z]{2,6}$#';  
-   if(preg_match($Sintaxe, $email)) return true;  
-   else return false;  
+   if(filter_var($email, FILTER_VALIDATE_EMAIL)) return false;  
+   else return true;  
    
 }

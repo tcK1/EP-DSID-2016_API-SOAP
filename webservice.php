@@ -2,42 +2,41 @@
 /***************************IMPORTS***************************/
 require_once 'lib/nusoap.php';
 require_once 'bd.php';
-require_once 'xml.php';
+require_once 'aux.php';
 /***************************IMPORTS***************************/
 
 /***************************REGISTROS***************************/
 $server = new soap_server();
-$server->configureWSDL("webservice", "urn:webservice");
+$server->configureWSDL("webservice", 
+                       "https://distribuidossoap-ztck.c9users.io/webservice?wsdl", 
+                       "https://distribuidossoap-ztck.c9users.io/webservice");
 
 $server->register("CadastraUsuario",
     array("nome" => "xsd:string",
           "email" => "xsd:string",
           "senha" => "xsd:string"),
     array("return" => "xsd:string"),
-    "urn:webservice",
+    "https://distribuidossoap-ztck.c9users.io/",
     "urn:webservice#CadastraUsuario",
     "rpc",
-    "literal",
-    "Adiciona um Usuario ao sistema");
+    "literal");
     
 $server->register("ValidaSecao",
     array("email" => "xsd:string",
           "senha" => "xsd:string"),
     array("return" => "xsd:string"),
-    "urn:webservice",
+    "https://distribuidossoap-ztck.c9users.io/",
     "urn:webservice#ValidaSecao",
     "rpc",
-    "literal",
-    "Valida a secao de um Usuario no sistema");
+    "literal");
     
 $server->register("DeletaUsuario",
     array("id" => "xsd:int"),
     array("return" => "xsd:string"),
-    "urn:webservice",
+    "https://distribuidossoap-ztck.c9users.io/",
     "urn:webservice#ValidaSecao",
     "rpc",
-    "literal",
-    "Deleta o cadastro de um Usuario registrado sistema");
+    "literal");
 
 $HTTP_RAW_POST_DATA = isset($HTTP_RAW_POST_DATA) ? $HTTP_RAW_POST_DATA : '';
 $server->service($HTTP_RAW_POST_DATA);
@@ -48,6 +47,10 @@ function CadastraUsuario($nome, $email, $senha){
     
     if(!isset($nome) || !isset($email) || !isset($senha)){
         $xml = xml('ERRO', 'Falha na Insercao', 'Um dos parametros em branco');
+        return $xml;
+    }
+    if(checaEmailInvalido($email)){
+        $xml = xml('ERRO', 'Falha na Insercao', 'Email invalido');
         return $xml;
     }
     
@@ -76,6 +79,10 @@ function ValidaSecao($email, $senha){
     
     if(!isset($email) || !isset($senha)){
         $xml = xml('ERRO', 'Falha na Consulta', 'Um dos parametros em branco');
+        return $xml;
+    }
+    if(checaEmailInvalido($email)){
+        $xml = xml('ERRO', 'Falha na Insercao', 'Email invalido');
         return $xml;
     }
 
