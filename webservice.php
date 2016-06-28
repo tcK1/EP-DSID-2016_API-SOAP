@@ -17,7 +17,7 @@ $server->register("CadastraUsuario",
           "senha" => "xsd:string"),
     array("return" => "xsd:string"),
     "https://distribuidossoap-ztck.c9users.io/",
-    "urn:webservice#CadastraUsuario",
+    "#",
     "rpc",
     "literal");
     
@@ -26,7 +26,7 @@ $server->register("ValidaSecao",
           "senha" => "xsd:string"),
     array("return" => "xsd:string"),
     "https://distribuidossoap-ztck.c9users.io/",
-    "urn:webservice#ValidaSecao",
+    "#",
     "rpc",
     "literal");
     
@@ -34,7 +34,15 @@ $server->register("DeletaUsuario",
     array("id" => "xsd:int"),
     array("return" => "xsd:string"),
     "https://distribuidossoap-ztck.c9users.io/",
-    "urn:webservice#ValidaSecao",
+    "#",
+    "rpc",
+    "literal");
+    
+$server->register("BuscaCompras",
+    array("id" => "xsd:int"),
+    array("return" => "xsd:string"),
+    "https://distribuidossoap-ztck.c9users.io/",
+    "#",
     "rpc",
     "literal");
 
@@ -46,11 +54,11 @@ $server->service($HTTP_RAW_POST_DATA);
 function CadastraUsuario($nome, $email, $senha){
     
     if(!isset($nome) || !isset($email) || !isset($senha)){
-        $xml = xml('ERRO', 'Falha na Insercao', 'Um dos parametros em branco');
+        $xml = xml('ERRO', 'Falha na Inserção', 'Um dos parametros em branco');
         return $xml;
     }
     if(checaEmailInvalido($email)){
-        $xml = xml('ERRO', 'Falha na Insercao', 'Email invalido');
+        $xml = xml('ERRO', 'Falha na Inserção', 'Email inválido');
         return $xml;
     }
     
@@ -66,9 +74,9 @@ function CadastraUsuario($nome, $email, $senha){
     if ($status){
         $id = $GLOBALS['db']->lastInsertId();
     
-        $xml = xml('OK', 'Insercao feita com sucesso', 'Usuario com id '.$id.' criado com sucesso');
+        $xml = xml('OK', 'Inserção feita com sucesso', 'Usuário com id '.$id.' criado com sucesso');
     } else {
-        $xml = xml('ERRO', 'Falha na Insercao', $stmt->errorInfo()); 
+        $xml = xml('ERRO', 'Falha na Inserção', $stmt->errorInfo()); 
     }
     
     return $xml;
@@ -82,7 +90,7 @@ function ValidaSecao($email, $senha){
         return $xml;
     }
     if(checaEmailInvalido($email)){
-        $xml = xml('ERRO', 'Falha na Insercao', 'Email invalido');
+        $xml = xml('ERRO', 'Falha na Consulta', 'Email inválido');
         return $xml;
     }
 
@@ -114,7 +122,7 @@ function ValidaSecao($email, $senha){
 function DeletaUsuario($id){
     
     if(!isset($id)){
-        $xml = xml('ERRO', 'Falha na Insercao', 'ID em branco');
+        $xml = xml('ERRO', 'Falha na Inserção', 'ID em branco');
         return $xml;
     }
     
@@ -126,9 +134,40 @@ function DeletaUsuario($id){
     ));
     
     if ($status){
-        $xml = xml('OK', 'Remocao feita com sucesso', 'Usuario com id '.$id.' deletado com sucesso');
+        $xml = xml('OK', 'Remoção feita com sucesso', 'Usuario com id '.$id.' deletado com sucesso');
     } else {
-        $xml = xml('ERRO', 'Falha na Remocao', $stmt->errorInfo()); 
+        $xml = xml('ERRO', 'Falha na Remoção', $stmt->errorInfo()); 
+    }
+    
+    return $xml;
+    
+}
+
+function BuscaCompras($id){
+    
+    if(!isset($id)){
+        $xml = xml('ERRO', 'Falha na Consulta', 'ID em branco');
+        return $xml;
+    }
+    
+    $stmt = $GLOBALS['db']->prepare(
+    'SELECT detalhes_venda.id_venda, detalhes, preco, pago
+    FROM detalhes_venda INNER JOIN vendas
+    ON vendas.id_venda = detalhes_venda.id_venda
+    AND id_usuario = :id');
+    $status = $stmt->execute(array(
+        'id' => $id
+    ));
+    $resultado = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    if ($status){
+        if(!empty($resultado)){
+            $xml = xml('OK', 'Consulta feita com sucesso', $resultado);
+        } else {
+            $xml = xml('OK', 'Consulta não retornou nenhum valor', $resultado);
+        }
+    } else {
+        $xml = xml('ERRO', 'Falha na Consulta', $stmt->errorInfo()); 
     }
     
     return $xml;
